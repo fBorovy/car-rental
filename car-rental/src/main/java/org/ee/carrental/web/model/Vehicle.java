@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class Vehicle {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
     private String brand;
     private String model;
@@ -28,24 +28,19 @@ public class Vehicle {
         this.price_per_day = price_per_day;
         this.reserved = false;
         this.rented = false;
-        this.last_reservation_time = 0;
-        this.last_rental_time = 0;
+        this.last_reservation_time = 0; // 0 oznacza brak rezerwacji na ten moment
+        this.last_rental_time = 0; // jak wyżej
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
 
     public String getBrand() {
         return this.brand;
     }
-
-
-    public String getModel() {
-        return this.model;
-    }
+    public String getModel() { return this.model; }
+    public BigDecimal getPrice_per_day() { return this.price_per_day; }
 }

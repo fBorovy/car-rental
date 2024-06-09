@@ -24,11 +24,11 @@
                     <td><input type="text" name="model" value="${fn:escapeXml(model)}" ></td>
                     <td><span class="error">${errors.model}</span></td>
                 </tr>
-<%--                <tr>
+                <tr>
                     <td>Cena:</td>
-                    <td><input type="text" name="price" value="${fn:escapeXml(price)}" > </td>
+                    <td><input type="text" name="price_per_day" value="${fn:escapeXml(price_per_day)}" > </td>
                     <td><span class="error">${errors.price}</span></td>
-                </tr> --%>
+                </tr>
             </table>
             <input type="submit" value="Save"> 
         </form>

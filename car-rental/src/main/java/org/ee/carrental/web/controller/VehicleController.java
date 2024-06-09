@@ -68,7 +68,7 @@ public class VehicleController extends HttpServlet {
             vehicle = vehicleDao.findById(id).orElseThrow(() -> new IllegalStateException("No vehicle with id "+id));
             req.setAttribute("brand",vehicle.getBrand());
             req.setAttribute("model",vehicle.getModel());
-//            req.setAttribute("price",formatPrice(b.getPrice()));
+            req.setAttribute("price_per_day",formatPrice(vehicle.getPrice_per_day()));
         }
         // przekazuje sterowanie do strony jsp zwracającej formularz z książką
         req.getRequestDispatcher("/WEB-INF/views/vehicle/vehicle_form.jsp").forward(req, res);
@@ -76,7 +76,7 @@ public class VehicleController extends HttpServlet {
 
     private void handleVehicleEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String s = req.getPathInfo();
-//        Long id = parseId(s);
+        Long id = parseId(s);
 
         Map<String,String> fieldToError = new HashMap<>();
         Vehicle vehicle = parseVehicle(req.getParameterMap(),fieldToError);
@@ -87,17 +87,17 @@ public class VehicleController extends HttpServlet {
             // ustawia wartości przekazane z formularza metodą POST w atrybutach do wyrenderowania na stronie z formularzem
             req.setAttribute("brand",req.getParameter("brand"));
             req.setAttribute("model",req.getParameter("model"));
-            req.setAttribute("price",req.getParameter("price"));
+            req.setAttribute("price_per_day",req.getParameter("price_per_day"));
 
             // przekazuje sterowanie do widoku jsp w celu wyrenderowania formularza z informacją o błędach
             req.getRequestDispatcher("/WEB-INF/views/vehicle/vehicle_form.jsp").forward(req, res);
             return;
         }
 
-//        vehicle.setId(id);
+        if (id != null) vehicle.setId(id);
         vehicleDao.saveOrUpdate(vehicle);
 
-        // po udanej konwersji/walidacji i zapisie obiektu użytkownik jest przekierowywany (przez HTTP Redirect) na stronę z listą książek
+        // po udanej konwersji/walidacji i zapisie obiektu użytkownik jest przekierowywany (przez HTTP Redirect) na stronę z listą aut
         res.sendRedirect(req.getContextPath() + "/vehicle/list");
     }
 
@@ -112,8 +112,8 @@ public class VehicleController extends HttpServlet {
     private Vehicle parseVehicle(Map<String,String[]> paramToValue, Map<String,String> fieldToError) {
         String brand = paramToValue.get("brand")[0];
         String model = paramToValue.get("model")[0];
-        //String price = paramToValue.get("price")[0];
-        //BigDecimal bdPrice = null;
+        String price = paramToValue.get("price_per_day")[0];
+        BigDecimal bdPrice = null;
 
         if (brand == null || brand.trim().isEmpty()) {
             fieldToError.put("brand","Pole marka nie może być puste");
@@ -123,17 +123,17 @@ public class VehicleController extends HttpServlet {
             fieldToError.put("model","Pole model nie może być puste");
         }
 
-//        if (price == null || price.trim().isEmpty()) {
-//            fieldToError.put("price","Pole cena nie może być puste");
-//        } else {
-//            try {
-//                bdPrice = parsePrice(price);
-//            } catch (Throwable e) {
-//                fieldToError.put("price","Cena musi być poprawną liczbą");
-//            }
-//        }
+        if (price == null || price.trim().isEmpty()) {
+            fieldToError.put("price_per_day","Pole cena nie może być puste");
+        } else {
+            try {
+                bdPrice = parsePrice(price);
+            } catch (Throwable e) {
+                fieldToError.put("price_per_day","Cena musi być poprawną liczbą");
+            }
+        }
 
-        return fieldToError.isEmpty() ?  new Vehicle(brand,model,"2001", BigDecimal.valueOf(50)) : null;
+        return fieldToError.isEmpty() ?  new Vehicle(brand,model,"2001", bdPrice) : null;
     }
 
 
