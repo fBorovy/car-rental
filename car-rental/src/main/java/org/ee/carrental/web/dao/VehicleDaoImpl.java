@@ -12,7 +12,7 @@ import java.util.Optional;
 @Stateless
 public class VehicleDaoImpl implements VehicleDao {
 
-    @PersistenceContext(unitName = "PU")
+    @PersistenceContext(unitName = "pu")
     private EntityManager entityManager;
 
     @Override

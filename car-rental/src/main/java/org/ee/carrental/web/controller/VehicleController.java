@@ -76,7 +76,7 @@ public class VehicleController extends HttpServlet {
 
     private void handleVehicleEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String s = req.getPathInfo();
-        Long id = parseId(s);
+//        Long id = parseId(s);
 
         Map<String,String> fieldToError = new HashMap<>();
         Vehicle vehicle = parseVehicle(req.getParameterMap(),fieldToError);
@@ -85,8 +85,8 @@ public class VehicleController extends HttpServlet {
             // ustawia błędy jako atrybut do wyrenderowania na stronie z formularzem
             req.setAttribute("errors",fieldToError);
             // ustawia wartości przekazane z formularza metodą POST w atrybutach do wyrenderowania na stronie z formularzem
-            req.setAttribute("title",req.getParameter("title"));
-            req.setAttribute("author",req.getParameter("author"));
+            req.setAttribute("brand",req.getParameter("brand"));
+            req.setAttribute("model",req.getParameter("model"));
             req.setAttribute("price",req.getParameter("price"));
 
             // przekazuje sterowanie do widoku jsp w celu wyrenderowania formularza z informacją o błędach
@@ -94,7 +94,7 @@ public class VehicleController extends HttpServlet {
             return;
         }
 
-        vehicle.setId(id);
+//        vehicle.setId(id);
         vehicleDao.saveOrUpdate(vehicle);
 
         // po udanej konwersji/walidacji i zapisie obiektu użytkownik jest przekierowywany (przez HTTP Redirect) na stronę z listą książek

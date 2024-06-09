@@ -10,7 +10,7 @@ public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id = 0;
+    private long id;
     private String brand;
     private String model;
     private String production_year;
