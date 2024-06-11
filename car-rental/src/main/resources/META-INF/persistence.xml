@@ -12,7 +12,6 @@
         <property name="jakarta.persistence.jdbc.user" value="sa"/>
         <property name="jakarta.persistence.jdbc.password" value="sa"/>
         <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
-        <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
         <property name="eclipselink.logging.level" value="FINE"/>
     </properties>
   </persistence-unit>

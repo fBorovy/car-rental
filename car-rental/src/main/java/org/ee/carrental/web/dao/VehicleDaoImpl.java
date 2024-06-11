@@ -15,12 +15,16 @@ public class VehicleDaoImpl implements VehicleDao {
     @PersistenceContext(unitName = "pu")
     private EntityManager entityManager;
 
+    // setter for testing
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Override
     public Vehicle saveOrUpdate(Vehicle vehicle) {
         if (vehicle.getId() == null) {
             entityManager.persist(vehicle);
-        }
-        else {
+        } else {
             vehicle = entityManager.merge(vehicle);
         }
         return vehicle;

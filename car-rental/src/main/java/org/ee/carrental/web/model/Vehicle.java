@@ -37,6 +37,7 @@ public class Vehicle {
     }
 
     public void setId(Long id) { this.id = id; }
+    public void setPrice_per_day(BigDecimal price) { this.price_per_day = price; }
 
     public String getBrand() {
         return this.brand;
