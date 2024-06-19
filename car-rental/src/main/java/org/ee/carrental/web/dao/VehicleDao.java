@@ -15,4 +15,5 @@ public interface VehicleDao {
 
     List<Vehicle> findAll();
 
+    void reserveVehicle(long id);
 }
