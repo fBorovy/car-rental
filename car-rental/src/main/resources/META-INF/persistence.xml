@@ -4,8 +4,10 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
              version="3.0">
     <persistence-unit name="pu" transaction-type="JTA">
-        <jta-data-source>java:global/DemoDataSource</jta-data-source>
+        <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
         <class>org.ee.carrental.web.model.Vehicle</class>
+        <class>org.ee.carrental.web.model.User</class>
+        <class>org.ee.carrental.web.model.UserGroup</class>
     <properties>
         <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:~/test2"/>
         <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
@@ -13,6 +15,7 @@
         <property name="jakarta.persistence.jdbc.password" value="sa"/>
         <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
         <property name="eclipselink.logging.level" value="FINE"/>
+        <property name="jakarta.persistence.provider" value="org.eclipse.persistence.jpa.PersistenceProvider"/>
     </properties>
   </persistence-unit>
 </persistence>

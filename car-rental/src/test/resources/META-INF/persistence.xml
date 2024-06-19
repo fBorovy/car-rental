@@ -3,8 +3,10 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
              version="3.0">
-    <persistence-unit name="pu" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="pu_test" transaction-type="RESOURCE_LOCAL">
         <class>org.ee.carrental.web.model.Vehicle</class>
+        <class>org.ee.carrental.web.model.User</class>
+        <class>org.ee.carrental.web.model.UserGroup</class>
         <properties>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"/>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>

@@ -21,7 +21,7 @@ public class VehicleTest {
 
     @BeforeAll
     static public void setup() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu_test");
         entityManager = emf.createEntityManager();
         vehicleDao = new VehicleDaoImpl();
         vehicleDao.setEntityManager(entityManager);
