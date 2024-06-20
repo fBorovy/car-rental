@@ -1,5 +1,6 @@
 package org.ee.carrental.web;
 
+import jakarta.ejb.EJB;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -11,6 +12,8 @@ import java.util.logging.Logger;
 public class AppInitializer implements ServletContextListener {
 
     private static final Logger logger = Logger.getLogger(AppInitializer.class.getName());
+    @EJB
+    UserService userService;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -20,10 +23,10 @@ public class AppInitializer implements ServletContextListener {
 
     private void createAdminUserIfNeeded() {
         logger.info("tworzenie admina");
-        UserService userService = new UserService();
         try {
             userService.registerUser("admin", "admin", "ROLE_ADMIN");
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
+            logger.info(e.getMessage());
             logger.info("admin juz istnieje");
         }
 

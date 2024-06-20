@@ -36,10 +36,18 @@ public class VehicleController extends HttpServlet {
                 handleVehicleList(req, res);
                 break;
             case "/vehicle/edit":
-                handleVehicleEditGet(req, res);
+                if (req.getSession().getAttribute("userGroups") != null && ((List<String>) req.getSession().getAttribute("userGroups")).contains("ROLE_ADMIN")) {
+                    handleVehicleEditGet(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 break;
             case "/vehicle/remove":
-                handleVehicleRemove(req, res);
+                if (req.getSession().getAttribute("userGroups") != null && ((List<String>) req.getSession().getAttribute("userGroups")).contains("ROLE_ADMIN")) {
+                    handleVehicleRemove(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 break;
         }
     }
@@ -49,10 +57,18 @@ public class VehicleController extends HttpServlet {
         String path = req.getServletPath();
         switch (path) {
             case "/vehicle/edit":
-                handleVehicleEditPost(req, res);
+                if (req.getSession().getAttribute("userGroups") != null && ((List<String>) req.getSession().getAttribute("userGroups")).contains("ROLE_ADMIN")) {
+                    handleVehicleEditPost(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 break;
             case "/vehicle/reserve":
-                handleVehicleReserve(req, res);
+                if (req.getSession().getAttribute("user") != null) {
+                    handleVehicleReserve(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 break;
         }
     }

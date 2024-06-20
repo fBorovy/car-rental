@@ -30,7 +30,7 @@
                     <td><span class="error">${errors.price}</span></td>
                 </tr>
             </table>
-            <input type="submit" value="Save"> 
+            <input type="submit" value="Zapisz">
         </form>
     </body>
 </html>

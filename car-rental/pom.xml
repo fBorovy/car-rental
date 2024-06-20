@@ -67,6 +67,12 @@
             <version>5.7.1</version>
             <scope>test</scope>
         </dependency>
+        <!--dane o sesji-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
     <build>

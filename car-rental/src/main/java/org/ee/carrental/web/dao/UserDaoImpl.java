@@ -28,7 +28,7 @@ public class UserDaoImpl implements UserDao {
     public User findByUsername(String username) {
         logger.info("DAO PRZED QUERY _________________________");
         TypedQuery<User> query = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.login = :username", User.class);
+                "SELECT u FROM User u LEFT JOIN FETCH u.userGroups WHERE u.login = :username", User.class);
         query.setParameter("username", username);
         logger.info("DAO PO QUERY _________________________");
 

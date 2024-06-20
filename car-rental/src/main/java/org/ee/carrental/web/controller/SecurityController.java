@@ -7,10 +7,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.ee.carrental.web.model.User;
+import org.ee.carrental.web.model.UserGroup;
 import org.ee.carrental.web.service.UserService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "LoginController", urlPatterns = {"/security", "/security/login", "/security/logout", "/security/register"})
 public class SecurityController extends HttpServlet {
@@ -27,10 +30,25 @@ public class SecurityController extends HttpServlet {
         String path = req.getServletPath();
         switch (path) {
             case "/security/login":
-                handleLoginPost(req, res);
+                if (req.getSession().getAttribute("user") == null) {
+                    handleLoginPost(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                }
                 break;
             case "/security/register":
-                handleRegisterPost(req, res);
+                if (req.getSession().getAttribute("user") == null) {
+                    handleRegisterPost(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                }
+                break;
+            case "/security/logout":
+                if (req.getSession().getAttribute("user") != null) {
+                    handleLogoutPost(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 break;
         }
     }
@@ -42,14 +60,26 @@ public class SecurityController extends HttpServlet {
         String path = req.getServletPath();
         switch (path) {
             case "/security/login":
-                handleLoginGet(req, res);
-                break;
-            case "/security/logout":
-                handleLogoutGet(req, res);
+                if (req.getSession().getAttribute("user") == null) {
+                    handleLoginGet(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                }
                 break;
             case "/security/register":
-                handleRegisterGet(req, res);
+                if (req.getSession().getAttribute("user") == null) {
+                    handleRegisterGet(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                }
                 break;
+            case "/security/logout":
+                if (req.getSession().getAttribute("user") != null) {
+                    handleLogoutPost(req, res);
+                } else {
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                }
+            break;
         }
     }
 
@@ -94,6 +124,11 @@ public class SecurityController extends HttpServlet {
         try {
             User user = userService.loginUser(login, password);
             req.getSession().setAttribute("user", user);
+            req.getSession().setAttribute("username", user.getLogin());
+            List<String> userGroupNames = user.getUserGroups().stream()
+                    .map(UserGroup::getName)
+                    .collect(Collectors.toList());
+            req.getSession().setAttribute("userGroups", userGroupNames);
             res.sendRedirect(req.getContextPath() + "/vehicle/list"); // przekierowanie na stronę główną po zalogowaniu
         } catch (RuntimeException e) {
             req.setAttribute("error", e.getMessage());
@@ -102,8 +137,8 @@ public class SecurityController extends HttpServlet {
         }
     }
 
-    protected void handleLogoutGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    protected void handleLogoutPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
         userService.logoutUser(req);
-        res.sendRedirect(req.getContextPath() + "security/login.jsp");
+        res.sendRedirect(req.getContextPath() + "/vehicle/list");
     }
 }
