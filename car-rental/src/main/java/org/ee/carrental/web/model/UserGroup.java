@@ -1,5 +1,6 @@
 package org.ee.carrental.web.model;
 
+import jakarta.jws.soap.SOAPBinding;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,4 +14,16 @@ public class UserGroup {
     private User user;
     @Column(nullable = false)
     private String name;
+
+    public UserGroup(){}
+
+    public UserGroup(User user, String name) {
+        this.user = user;
+        this.name = name;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
 }

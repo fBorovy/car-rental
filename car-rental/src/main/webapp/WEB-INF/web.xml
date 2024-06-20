@@ -17,4 +17,9 @@
     <error-page>
         <location>/WEB-INF/views/error.jsp</location>
     </error-page>
+
+<!--    klasa app initializer do wykonania kodu podczas uruchomienia-->
+    <listener>
+        <listener-class>org.ee.carrental.web.AppInitializer</listener-class>
+    </listener>
 </web-app>

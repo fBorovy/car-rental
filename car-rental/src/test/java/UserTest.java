@@ -1,14 +1,10 @@
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import org.ee.carrental.web.service.UserService;
 import org.ee.carrental.web.dao.UserDaoImpl;
 import org.ee.carrental.web.model.User;
 import org.junit.jupiter.api.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class UserTest {
 
@@ -57,15 +53,22 @@ public class UserTest {
 
     @Test
     public void testCreateUser() {
-        User created = userService.registerUser("Janek", "Panek");
+        User created = userService.registerUser("Janek", "Panek", "ROLE_USER");
         Assertions.assertNotNull(created.getId());
         Assertions.assertEquals("Janek", created.getLogin());
     }
 
     @Test
     void testLoginUser() {
-        User created = userService.registerUser("Wiktor", "Wektor");
+        User created = userService.registerUser("Wiktor", "Wektor", "ROLE_USER");
         User logged = userService.loginUser("Wiktor", "Wektor");
         Assertions.assertEquals("Wiktor", logged.getLogin());
+    }
+
+    @Test
+    void testFindByUsername() {
+        User created = userService.registerUser("Szczur", "Zsilki", "ROLE_USER");
+        User user = userService.findByUsername("Szczur");
+        Assertions.assertEquals("Zsilki", user.getPassword());
     }
 }

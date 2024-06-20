@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@WebServlet(name = "VehicleController", urlPatterns = {"vehicle/list", "/vehicle/edit/*", "/vehicle/remove/*", "/vehicle/reserve/*"})
+@WebServlet(name = "VehicleController", urlPatterns = {"/vehicle/list", "/vehicle/edit/*", "/vehicle/remove/*", "/vehicle/reserve/*"})
 public class VehicleController extends HttpServlet {
 
     @EJB
@@ -36,7 +36,7 @@ public class VehicleController extends HttpServlet {
                 handleVehicleList(req, res);
                 break;
             case "/vehicle/edit":
-                handleVehicleGetEdit(req, res);
+                handleVehicleEditGet(req, res);
                 break;
             case "/vehicle/remove":
                 handleVehicleRemove(req, res);
@@ -66,7 +66,7 @@ public class VehicleController extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/views/vehicle/vehicle_list.jsp").forward(req, res);
     }
 
-    private void handleVehicleGetEdit(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    private void handleVehicleEditGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String s = req.getPathInfo();
         Long id = parseId(s);
         Vehicle vehicle;
@@ -76,7 +76,7 @@ public class VehicleController extends HttpServlet {
             req.setAttribute("model",vehicle.getModel());
             req.setAttribute("price_per_day",formatPrice(vehicle.getPrice_per_day()));
         }
-        // przekazuje sterowanie do strony jsp zwracającej formularz z książką
+        // przekazuje sterowanie do strony jsp zwracającej formularz z samochodem
         req.getRequestDispatcher("/WEB-INF/views/vehicle/vehicle_form.jsp").forward(req, res);
     }
 
