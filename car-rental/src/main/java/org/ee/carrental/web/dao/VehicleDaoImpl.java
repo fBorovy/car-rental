@@ -46,4 +46,13 @@ public class VehicleDaoImpl implements VehicleDao {
         TypedQuery<Vehicle> vehicleQuery = entityManager.createNamedQuery("Vehicle.findAll", Vehicle.class);
         return vehicleQuery.getResultList();
     }
+
+    @Override
+    public void reserveVehicle(long id) {
+        Vehicle vehicle = entityManager.getReference(Vehicle.class, id);
+        if (vehicle != null) {
+            vehicle.setReserved(true);
+            entityManager.merge(vehicle);
+        }
+    }
 }

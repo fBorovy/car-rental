@@ -20,11 +20,16 @@
             <id>internal.repo</id>
             <name>InternalRepository</name>
             <!-- Konrad to masz inne-->
-            <url>file:///C:\Users\Filip\Documents\semestr6\java\wildfly-32.0.1.Final\wildfly-32.0.1.Final\standalone\deployments</url>
+            <url>file:///D:\Studia\Semestr 6\Java\Projekt\wildfly-32.0.1.Final\standalone\deployments</url>
         </repository>
     </distributionManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.0</version>
+        </dependency>
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>

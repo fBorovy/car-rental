@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.ee.carrental.web.dao.VehicleDao;
 import org.ee.carrental.web.model.Vehicle;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -20,9 +21,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@WebServlet(name = "VehicleController", urlPatterns = {"vehicle/list", "/vehicle/edit/*", "/vehicle/remove/*"})
+@WebServlet(name = "VehicleController", urlPatterns = {"vehicle/list", "/vehicle/edit/*", "/vehicle/remove/*", "/vehicle/reserve/*"})
 public class VehicleController extends HttpServlet {
-    
+
     @EJB
     private VehicleDao vehicleDao;
     
@@ -46,8 +47,13 @@ public class VehicleController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String path = req.getServletPath();
-        if (path.equals("/vehicle/edit")) {
-            handleVehicleEditPost(req, res);
+        switch (path) {
+            case "/vehicle/edit":
+                handleVehicleEditPost(req, res);
+                break;
+            case "/vehicle/reserve":
+                handleVehicleReserve(req, res);
+                break;
         }
     }
 
@@ -107,6 +113,22 @@ public class VehicleController extends HttpServlet {
         vehicleDao.remove(id);
         // użytkownik jest przekierowywany (przez HTTP Redirect) na stronę z listą pojazdów
         res.sendRedirect(req.getContextPath() + "/vehicle/list");
+    }
+
+    private void handleVehicleReserve(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        Long id = Long.parseLong(req.getParameter("id"));
+        boolean reserved = Boolean.parseBoolean(req.getParameter("reserved"));
+
+        vehicleDao.reserveVehicle(id);
+
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("status", reserved);
+
+        res.getWriter().write(new ObjectMapper().writeValueAsString(response));
     }
 
     private Vehicle parseVehicle(Map<String,String[]> paramToValue, Map<String,String> fieldToError) {
