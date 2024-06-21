@@ -1,7 +1,7 @@
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.ee.carrental.web.service.UserService;
+import org.ee.carrental.web.service.UserServiceImpl;
 import org.ee.carrental.web.dao.UserDaoImpl;
 import org.ee.carrental.web.model.User;
 import org.junit.jupiter.api.*;
@@ -10,7 +10,7 @@ public class UserTest {
 
     static private EntityManager entityManager;
     static private UserDaoImpl userDao;
-    static private UserService userService;
+    static private UserServiceImpl userService;
     //static private PasswordHasher passwordHasher;
     //static private Pbkdf2PasswordHash passwordHash;
     User sampleUser = new User("Janek", "Panek");
@@ -27,7 +27,7 @@ public class UserTest {
         entityManager = emf.createEntityManager();
         userDao = new UserDaoImpl();
         userDao.setEntityManager(entityManager);
-        userService = new UserService();
+        userService = new UserServiceImpl();
         userService.setUserDao(userDao);
         //passwordHasher = new PasswordHasher(passwordHash);
         //userService.setPasswordHasher(passwordHasher);

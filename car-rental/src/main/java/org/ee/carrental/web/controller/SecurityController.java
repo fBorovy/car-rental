@@ -92,18 +92,21 @@ public class SecurityController extends HttpServlet {
 
         if (!password.equals(re_password)) {
             req.setAttribute("error", "Hasła nie mogą się różnić");
-            logger.info("Wyswietlnie strony z bledem po rejestracji");
-            req.getRequestDispatcher("/WEB-INF/views/security/register.jsp").forward(req, res); // przekierowanie z powrotem na stronę logowania z komunikatem o błędzie
+            req.getRequestDispatcher("/WEB-INF/views/security/register.jsp").forward(req, res);
         }
 
         try {
             User user = userService.registerUser(login, password, "ROLE_USER");
             req.getSession().setAttribute("user", user);
-            res.sendRedirect(req.getContextPath() + "/vehicle/list"); // przekierowanie na stronę główną po rejestracji
+            req.getSession().setAttribute("username", user.getLogin());
+            List<String> userGroupNames = user.getUserGroups().stream()
+                    .map(UserGroup::getName)
+                    .collect(Collectors.toList());
+            req.getSession().setAttribute("userGroups", userGroupNames);
+            res.sendRedirect(req.getContextPath() + "/vehicle/list");
         } catch (RuntimeException e) {
             req.setAttribute("error", e.getMessage());
-            logger.info("Wyswietlnie strony z bledem po rejestracji");
-            req.getRequestDispatcher("/WEB-INF/views/security/register.jsp").forward(req, res); // przekierowanie z powrotem na stronę logowania z komunikatem o błędzie
+            req.getRequestDispatcher("/WEB-INF/views/security/register.jsp").forward(req, res);
         }
     }
 
@@ -116,8 +119,6 @@ public class SecurityController extends HttpServlet {
     }
 
     protected void handleLoginPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        logger.info("Wywolano metode handleLoginPost()");
-
         String login = req.getParameter("login");
         String password = req.getParameter("password");
 
@@ -129,11 +130,10 @@ public class SecurityController extends HttpServlet {
                     .map(UserGroup::getName)
                     .collect(Collectors.toList());
             req.getSession().setAttribute("userGroups", userGroupNames);
-            res.sendRedirect(req.getContextPath() + "/vehicle/list"); // przekierowanie na stronę główną po zalogowaniu
+            res.sendRedirect(req.getContextPath() + "/vehicle/list");
         } catch (RuntimeException e) {
             req.setAttribute("error", e.getMessage());
-            logger.info("Wyswietlnie strony z bledem");
-            req.getRequestDispatcher("/WEB-INF/views/security/login.jsp").forward(req, res); // przekierowanie z powrotem na stronę logowania z komunikatem o błędzie
+            req.getRequestDispatcher("/WEB-INF/views/security/login.jsp").forward(req, res);
         }
     }
 

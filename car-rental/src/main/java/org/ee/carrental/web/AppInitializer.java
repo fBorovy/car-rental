@@ -17,17 +17,14 @@ public class AppInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        // Kod do inicjalizacji
         createAdminUserIfNeeded();
     }
 
     private void createAdminUserIfNeeded() {
-        logger.info("tworzenie admina");
         try {
             userService.registerUser("admin", "admin", "ROLE_ADMIN");
         } catch (Exception e) {
             logger.info(e.getMessage());
-            logger.info("admin juz istnieje");
         }
 
     }

@@ -1,6 +1,5 @@
 package org.ee.carrental.web.model;
 
-import jakarta.jws.soap.SOAPBinding;
 import jakarta.persistence.*;
 
 @Entity
