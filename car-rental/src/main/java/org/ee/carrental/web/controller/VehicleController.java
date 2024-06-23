@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.ee.carrental.web.dao.VehicleDao;
 import org.ee.carrental.web.model.Vehicle;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ee.carrental.web.service.GMailer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -85,9 +86,8 @@ public class VehicleController extends HttpServlet {
     private void handleVehicleEditGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String s = req.getPathInfo();
         Long id = parseId(s);
-        Vehicle vehicle;
-        if (id != null) {
-            vehicle = vehicleDao.findById(id).orElseThrow(() -> new IllegalStateException("No vehicle with id "+id));
+        Vehicle vehicle = getVehicle(id);
+        if (vehicle != null) {
             req.setAttribute("brand",vehicle.getBrand());
             req.setAttribute("model",vehicle.getModel());
             req.setAttribute("price_per_day",formatPrice(vehicle.getPrice_per_day()));
@@ -134,6 +134,10 @@ public class VehicleController extends HttpServlet {
     private void handleVehicleReserve(HttpServletRequest req, HttpServletResponse res) throws IOException {
         Long id = Long.parseLong(req.getParameter("id"));
         boolean reserved = Boolean.parseBoolean(req.getParameter("reserved"));
+        Vehicle vehicle = getVehicle(id);
+        if (vehicle == null) {
+            return;
+        }
 
         vehicleDao.reserveVehicle(id);
 
@@ -143,6 +147,11 @@ public class VehicleController extends HttpServlet {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("status", reserved);
+        try {
+            new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),"234252", "confirmedReservation");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         res.getWriter().write(new ObjectMapper().writeValueAsString(response));
     }
@@ -198,4 +207,12 @@ public class VehicleController extends HttpServlet {
         return Long.parseLong(s.substring(1));
     }
 
+    private Vehicle getVehicle(Long id) {
+        Vehicle vehicle;
+        if (id != null) {
+            vehicle = vehicleDao.findById(id).orElseThrow(() -> new IllegalStateException("No vehicle with id " + id));
+            return vehicle;
+        }
+        return null;
+    }
 }

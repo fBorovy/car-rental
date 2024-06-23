@@ -10,7 +10,7 @@
         <h2>Rejestracja</h2>
         <form action="${pageContext.request.contextPath}/security/register" method="post">
             <div>
-                <label for="login">Użytkownik:</label>
+                <label for="login">E-mail:</label>
                 <input type="text" id="login" name="login" required>
             </div>
             <div>

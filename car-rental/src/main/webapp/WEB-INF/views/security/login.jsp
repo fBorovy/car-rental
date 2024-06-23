@@ -10,15 +10,15 @@
         <h2>Login</h2>
         <form action="${pageContext.request.contextPath}/security/login" method="post">
             <div>
-                <label for="login">Username:</label>
+                <label for="login">E-mail:</label>
                 <input type="text" id="login" name="login" required>
             </div>
             <div>
-                <label for="password">Password:</label>
+                <label for="password">Hasło:</label>
                 <input type="password" id="password" name="password" required>
             </div>
             <div>
-                <button type="submit">Login</button>
+                <button type="submit">Zaloguj</button>
             </div>
         </form>
         <c:if test="${not empty error}">

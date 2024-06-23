@@ -10,18 +10,16 @@
     <name>car-rental</name>
 
     <properties>
+        <maven.compiler.source>18</maven.compiler.source>
+        <maven.compiler.target>18</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <distributionManagement>
         <repository>
             <id>internal.repo</id>
             <name>InternalRepository</name>
-            <!-- Konrad to masz inne-->
-<!--            <url>file:///D:\Studia\Semestr 6\Java\Projekt\wildfly-32.0.1.Final\standalone\deployments</url>-->
-            <url>file:///C:\Users\Filip\Documents\semestr6\java\wildfly-32.0.1.Final\wildfly-32.0.1.Final\standalone\deployments</url>
+            <url>file:///D:/Studia/Semestr 6/Java/Projekt/wildfly-32.0.1.Final/standalone/deployments</url>
         </repository>
     </distributionManagement>
 
@@ -47,14 +45,23 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-        <!-- EclipseLink dependency -->
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
             <version>3.0.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- JUnit dependency -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -74,7 +81,6 @@
             <version>1.2</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -82,8 +88,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>18</source>
+                    <target>18</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -107,5 +113,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
