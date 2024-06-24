@@ -8,6 +8,7 @@
         <class>org.ee.carrental.web.model.Vehicle</class>
         <class>org.ee.carrental.web.model.User</class>
         <class>org.ee.carrental.web.model.UserGroup</class>
+        <class>org.ee.carrental.web.model.Reservation</class>
     <properties>
         <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:~/test2"/>
         <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>

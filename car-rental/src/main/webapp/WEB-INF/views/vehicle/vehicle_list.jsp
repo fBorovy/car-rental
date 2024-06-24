@@ -89,23 +89,33 @@
                                     </c:otherwise>
                                 </c:choose>
                             </td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${reserved}">
-                                X
-                            </c:when>
-                            <c:otherwise>
+                            <td>
                                 <c:choose>
                                     <c:when test="${not empty sessionScope.user}">
-                                        <button type="button" onclick="reserveVehicle(${vehicle.id}, '#status-${vehicle.id}')">Rezerwuj</button>
+                                        <button type="button" onclick="window.location.href = '<c:url value='/reservation/form?vehicleId=${vehicle.id}' />';">Rezerwuj</button>
                                     </c:when>
                                     <c:otherwise>
                                         <button type="button" onclick="window.location.href = '<c:url value='/security/login' />';">Rezerwuj</button>
                                     </c:otherwise>
                                 </c:choose>
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
+                            </td>
+<%--                    <td>--%>
+<%--                        <c:choose>--%>
+<%--                            <c:when test="${reserved}">--%>
+<%--                                X--%>
+<%--                            </c:when>--%>
+<%--                            <c:otherwise>--%>
+<%--                                <c:choose>--%>
+<%--                                    <c:when test="${not empty sessionScope.user}">--%>
+<%--                                        <button type="button" onclick="reserveVehicle(${vehicle.id}, '#status-${vehicle.id}')">Rezerwuj</button>--%>
+<%--                                    </c:when>--%>
+<%--                                    <c:otherwise>--%>
+<%--                                        <button type="button" onclick="window.location.href = '<c:url value='/security/login' />';">Rezerwuj</button>--%>
+<%--                                    </c:otherwise>--%>
+<%--                                </c:choose>--%>
+<%--                            </c:otherwise>--%>
+<%--                        </c:choose>--%>
+<%--                    </td>--%>
                     <td>
                         <!-- Sprawdzenie, czy użytkownik jest w grupie USER_ADMIN -->
                         <c:if test="${fn:contains(sessionScope.userGroups, 'ROLE_ADMIN')}">
