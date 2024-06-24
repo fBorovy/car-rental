@@ -15,5 +15,7 @@ public interface ReservationDao {
 
     List<Reservation> findAll();
 
+    List<Reservation> findActiveReservationsByVehicleId(long vehicleId);
+
     void cancelReservation(long id);
 }

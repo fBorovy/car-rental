@@ -58,4 +58,11 @@ public class ReservationDaoImpl implements ReservationDao {
             entityManager.merge(reservation);
         }
     }
+
+    public List<Reservation> findActiveReservationsByVehicleId(long vehicleId) {
+        String queryStr = "SELECT r FROM Reservation r WHERE r.reserved_vehicle_id = :vehicleId AND r.reservation_status = true";
+        TypedQuery<Reservation> query = entityManager.createQuery(queryStr, Reservation.class);
+        query.setParameter("vehicleId", vehicleId);
+        return query.getResultList();
+    }
 }

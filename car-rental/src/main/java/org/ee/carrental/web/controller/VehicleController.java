@@ -67,13 +67,6 @@ public class VehicleController extends HttpServlet {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 }
                 break;
-            case "/vehicle/reserve":
-                if (req.getSession().getAttribute("user") != null) {
-                    handleVehicleReserve(req, res);
-                } else {
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                }
-                break;
         }
     }
 
@@ -132,31 +125,6 @@ public class VehicleController extends HttpServlet {
         vehicleDao.remove(id);
         // użytkownik jest przekierowywany (przez HTTP Redirect) na stronę z listą pojazdów
         res.sendRedirect(req.getContextPath() + "/vehicle/list");
-    }
-
-    private void handleVehicleReserve(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        Long id = Long.parseLong(req.getParameter("id"));
-        boolean reserved = Boolean.parseBoolean(req.getParameter("reserved"));
-        Vehicle vehicle = getVehicle(id);
-        if (vehicle == null) {
-            return;
-        }
-
-        vehicleDao.reserveVehicle(id);
-
-        res.setContentType("application/json");
-        res.setCharacterEncoding("UTF-8");
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("status", reserved);
-        try {
-            new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),"234252", "confirmedReservation");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        res.getWriter().write(new ObjectMapper().writeValueAsString(response));
     }
 
     private Vehicle parseVehicle(Map<String,String[]> paramToValue, Map<String,String> fieldToError) {

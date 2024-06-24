@@ -13,6 +13,7 @@ import org.ee.carrental.web.model.Reservation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ee.carrental.web.model.User;
 import org.ee.carrental.web.model.Vehicle;
+import org.ee.carrental.web.service.GMailer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -151,14 +152,7 @@ public class ReservationController extends HttpServlet {
 
         if (!fieldToError.isEmpty()) {
             req.setAttribute("errors", fieldToError);
-            req.setAttribute("reservation_start", req.getParameter("reservation_start"));
-            req.setAttribute("reservation_end", req.getParameter("reservation_end"));
-            req.setAttribute("reservation_date", req.getParameter("reservation_date"));
-            req.setAttribute("reserved_vehicle_id", req.getParameter("reserved_vehicle_id"));
-            req.setAttribute("reserved_user_id", req.getParameter("reserved_user_id"));
-            req.setAttribute("payment_status", req.getParameter("payment_status"));
-            req.setAttribute("price", req.getParameter("price"));
-
+            setRequestAttributesFromParameters(req);
             req.getRequestDispatcher("/WEB-INF/views/reservation/reservation_form.jsp").forward(req, res);
             return;
         }
@@ -170,8 +164,48 @@ public class ReservationController extends HttpServlet {
         reservation.setPayment_status(false);
         reservation.setReserved_user_id(userId);
 
+        List<Reservation> reservations = reservationDao.findActiveReservationsByVehicleId(reservation.getReserved_vehicle_id());
+
+        if (!checkDateAvailability(reservation.getReservation_start(), reservation.getReservation_end(), reservations)) {
+            fieldToError.put("start_date", "Podana data jest już zajęta, proszę o wybranie innego terminu rezerwacji.");
+            req.setAttribute("errors", fieldToError);
+            setRequestAttributesFromParameters(req);
+            req.getRequestDispatcher("/WEB-INF/views/reservation/reservation_form.jsp").forward(req, res);
+            return;
+        }
+
         reservationDao.saveOrUpdate(reservation);
+
+        Vehicle vehicle = getVehicleById(reservation.getReserved_vehicle_id());
+
+        try {
+            new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),String.valueOf(reservation.getId()), "confirmedReservation");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         res.sendRedirect(req.getContextPath() + "/reservation/list");
+    }
+
+    private void setRequestAttributesFromParameters(HttpServletRequest req) {
+        req.setAttribute("reservation_start", req.getParameter("start_date"));
+        req.setAttribute("reservation_end", req.getParameter("end_date"));
+        req.setAttribute("reservation_date", req.getParameter("reservation_date"));
+        req.setAttribute("reserved_vehicle_id", req.getParameter("reserved_vehicle_id"));
+        req.setAttribute("reserved_user_id", req.getParameter("reserved_user_id"));
+        req.setAttribute("payment_status", req.getParameter("payment_status"));
+        req.setAttribute("price", req.getParameter("price"));
+    }
+
+    private boolean checkDateAvailability(Date startDate, Date endDate, List<Reservation> reservations) {
+        for (Reservation reservation : reservations) {
+            if (reservation.getReservation_status() &&
+                    !startDate.after(reservation.getReservation_end()) &&
+                    !endDate.before(reservation.getReservation_start())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void handleReservationRemove(HttpServletRequest req, HttpServletResponse res) throws IOException {

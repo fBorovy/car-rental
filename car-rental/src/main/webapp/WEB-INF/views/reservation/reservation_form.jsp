@@ -65,6 +65,31 @@
     </table>
     <input type="submit" value="Rezerwuj">
 </form>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const startDateInput = document.getElementById("start_date");
+        const endDateInput = document.getElementById("end_date");
+
+        const invalidDates = ['2024-06-24'];
+
+        // Set the minimum date to today
+        let today = new Date().toISOString().split("T")[0];
+        startDateInput.setAttribute("min", today);
+        endDateInput.setAttribute("min", today);
+
+        // Event listener for start date
+        startDateInput.addEventListener("change", function() {
+            let startDate = startDateInput.value;
+            endDateInput.setAttribute("min", startDate);
+        });
+
+        // Event listener for end date
+        endDateInput.addEventListener("change", function() {
+            let endDate = endDateInput.value;
+            startDateInput.setAttribute("max", endDate);
+        });
+    });
+</script>
 </body>
 </html>
 

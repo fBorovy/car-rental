@@ -10,12 +10,13 @@ import org.ee.carrental.web.model.Reservation;
 import org.ee.carrental.web.model.User;
 import org.ee.carrental.web.model.Vehicle;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Stateless
-public class UserRegistry {
+public class ReservationService {
 
     @PersistenceContext(unitName = "pu")
     private EntityManager entityManager;
@@ -23,17 +24,16 @@ public class UserRegistry {
     @Schedule(hour = "*", minute = "*", second = "*/30", info ="Every minute timer",persistent=true)
     public void getReservations() {
 
-        System.out.println(" test1");
        List<Reservation> reservations = findAll();
-        System.out.println(reservations);
 
         for (Reservation reservation : reservations) {
-            System.out.println("test2 ------------ " + reservation);
-            System.out.println("test3 ------------ " + reservation.getReservation_date());
-            System.out.println("test4 ------------ " + reservation.getReservation_status());
+            Date reservationDate = reservation.getReservation_date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(reservationDate);
+            calendar.add(Calendar.MINUTE, 3);
+            Date newReservationDate = calendar.getTime();
 
-            if (reservation.getReservation_date().before(new Date()) && reservation.getReservation_status()) {
-                System.out.println("test5 ------------ ");
+            if (newReservationDate.before(new Date()) && reservation.getReservation_status()) {
                 performAction(reservation);
                 setStatus(reservation.getId(), false);
             }
@@ -42,17 +42,13 @@ public class UserRegistry {
 
     private void performAction(Reservation reservation) {
         try {
-            // Pobierz użytkownika na podstawie ID
             User user = findUserById(reservation.getReserved_user_id());
             String username = (user != null) ? user.getLogin() : "Unknown";
 
-            // Pobierz pojazd na podstawie ID
             Vehicle vehicle = findVehicleById(reservation.getReserved_vehicle_id()).orElse(null);
             String vehicleBrand = (vehicle != null) ? vehicle.getBrand() : "Unknown";
             String vehicleModel = (vehicle != null) ? vehicle.getModel() : "Unknown";
 
-            // Wywołaj metodę sendEmail z pobranymi danymi
-            System.out.println("TEST WYSYLANIA WIADOMOSCI 1");
             new GMailer().sendEmail(username, vehicleBrand, vehicleModel, String.valueOf(reservation.getId()), "canceledReservation");
         } catch (Exception e) {
             throw new RuntimeException(e);
