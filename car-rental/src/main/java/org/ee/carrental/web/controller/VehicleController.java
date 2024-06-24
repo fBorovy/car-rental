@@ -1,11 +1,13 @@
 package org.ee.carrental.web.controller;
 
 import jakarta.ejb.EJB;
+import jakarta.ejb.Schedule;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jdk.jfr.Name;
 import org.ee.carrental.web.dao.VehicleDao;
 import org.ee.carrental.web.model.Vehicle;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@Name("VehicleDao")
 @WebServlet(name = "VehicleController", urlPatterns = {"/vehicle/list", "/vehicle/edit/*", "/vehicle/remove/*", "/vehicle/reserve/*"})
 public class VehicleController extends HttpServlet {
 
@@ -215,4 +218,5 @@ public class VehicleController extends HttpServlet {
         }
         return null;
     }
+
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jdk.jfr.Name;
 import org.ee.carrental.web.model.User;
 import org.ee.carrental.web.model.UserGroup;
 import org.ee.carrental.web.service.UserService;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+@Name("SecurityDao")
 @WebServlet(name = "LoginController", urlPatterns = {"/security", "/security/login", "/security/logout", "/security/register"})
 public class SecurityController extends HttpServlet {
 
@@ -99,6 +101,7 @@ public class SecurityController extends HttpServlet {
             User user = userService.registerUser(login, password, "ROLE_USER");
             req.getSession().setAttribute("user", user);
             req.getSession().setAttribute("username", user.getLogin());
+            req.getSession().setAttribute("id", user.getId());
             List<String> userGroupNames = user.getUserGroups().stream()
                     .map(UserGroup::getName)
                     .collect(Collectors.toList());
@@ -126,6 +129,7 @@ public class SecurityController extends HttpServlet {
             User user = userService.loginUser(login, password);
             req.getSession().setAttribute("user", user);
             req.getSession().setAttribute("username", user.getLogin());
+            req.getSession().setAttribute("id", user.getId());
             List<String> userGroupNames = user.getUserGroups().stream()
                     .map(UserGroup::getName)
                     .collect(Collectors.toList());

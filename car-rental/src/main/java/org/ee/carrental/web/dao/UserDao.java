@@ -7,5 +7,5 @@ public interface UserDao {
 
     User save(User user, UserGroup userGroup);
     User findByUsername(String username);
-
+    User findById(Long id);
 }

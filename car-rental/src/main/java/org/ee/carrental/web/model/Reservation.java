@@ -18,12 +18,14 @@ public class Reservation {
     private long reserved_vehicle_id;
     private long reserved_user_id;
     private boolean payment_status;
-    private int price;
+    private boolean reservation_status;
+
+    private BigDecimal price;
 
     public Reservation() {}
 
     public Reservation(Date reservation_start, Date reservation_end, Date reservation_date,
-                       long reserved_vehicle_id, long reserved_user_id, boolean payment_status, int price) {
+                       long reserved_vehicle_id, long reserved_user_id, boolean payment_status, BigDecimal price, boolean reservation_status) {
         this.reservation_start = reservation_start;
         this.reservation_end = reservation_end;
         this.reservation_date = reservation_date;
@@ -31,6 +33,7 @@ public class Reservation {
         this.reserved_user_id = reserved_user_id;
         this.payment_status = payment_status;
         this.price = price;
+        this.reservation_status = reservation_status;
     }
 
     // Gettery
@@ -58,13 +61,13 @@ public class Reservation {
         return reserved_user_id;
     }
 
-    public boolean isPayment_status() {
+    public boolean getPayment_status() {
         return payment_status;
     }
 
-    public int getPrice() {
-        return price;
-    }
+    public BigDecimal getPrice() { return price; }
+
+    public boolean getReservation_status() { return reservation_status; }
 
     // Settery
     public void setId(long id) {
@@ -95,7 +98,9 @@ public class Reservation {
         this.payment_status = payment_status;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
+    public void setReservation_status(boolean status) { this.reservation_status = status; }
 }

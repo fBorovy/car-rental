@@ -7,22 +7,23 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.ee.carrental.web.dao.ReservationDao;
-import org.ee.carrental.web.dao.ReservationDaoImpl;
-import org.ee.carrental.web.dao.VehicleDao;
-import org.ee.carrental.web.dao.VehicleDaoImpl;
+import jdk.jfr.Name;
+import org.ee.carrental.web.dao.*;
 import org.ee.carrental.web.model.Reservation;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ee.carrental.web.model.User;
 import org.ee.carrental.web.model.Vehicle;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Name("ReservationDao")
 @WebServlet(name = "ReservationController", urlPatterns = {"/reservation/list", "/reservation/edit/*", "/reservation/form/*", "/reservation/remove/*", "/reservation/cancel/*"})
 public class ReservationController extends HttpServlet {
 
@@ -31,6 +32,9 @@ public class ReservationController extends HttpServlet {
 
     @Inject
     private VehicleDao vehicleDao;
+
+    @Inject
+    private UserDao userDao;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -65,11 +69,7 @@ public class ReservationController extends HttpServlet {
         String path = req.getServletPath();
         switch (path) {
             case "/reservation/form":
-                if (isUserAuthorized(req, "ROLE_ADMIN")) {
                     handleReservationEditPost(req, res);
-                } else {
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                }
                 break;
             case "/reservation/cancel":
                 if (isUserAuthorized(req, "ROLE_USER")) {
@@ -83,7 +83,22 @@ public class ReservationController extends HttpServlet {
 
     private void handleReservationList(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         List<Reservation> reservations = reservationDao.findAll();
+
+        // Mapa do przechowywania nazw użytkowników
+        Map<Long, String> usernames = new HashMap<>();
+
+        // Pętla przez rezerwacje w celu pobrania nazw użytkowników
+        for (Reservation reservation : reservations) {
+            User user = userDao.findById(reservation.getReserved_user_id());
+            if (user != null) {
+                usernames.put(reservation.getId(), user.getLogin());
+            } else {
+                usernames.put(reservation.getId(), "Unknown");
+            }
+        }
+
         req.setAttribute("reservationList", reservations);
+        req.setAttribute("usernames", usernames);
         req.getRequestDispatcher("/WEB-INF/views/reservation/reservation_list.jsp").forward(req, res);
     }
 
@@ -114,7 +129,7 @@ public class ReservationController extends HttpServlet {
             req.setAttribute("reservation_date", reservation.getReservation_date());
             req.setAttribute("reserved_vehicle_id", reservation.getReserved_vehicle_id());
             req.setAttribute("reserved_user_id", reservation.getReserved_user_id());
-            req.setAttribute("payment_status", reservation.isPayment_status());
+            req.setAttribute("payment_status", reservation.getPayment_status());
             req.setAttribute("price", reservation.getPrice());
 
             VehicleDaoImpl dao = new VehicleDaoImpl();
@@ -131,11 +146,9 @@ public class ReservationController extends HttpServlet {
     private void handleReservationEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String s = req.getPathInfo();
         Long id = parseId(s);
-        System.out.println("0 /////////////////////////////////");
         Map<String, String> fieldToError = new HashMap<>();
         Reservation reservation = parseReservation(req ,req.getParameterMap(), fieldToError);
 
-        System.out.println("1 /////////////////////////////////");
         if (!fieldToError.isEmpty()) {
             req.setAttribute("errors", fieldToError);
             req.setAttribute("reservation_start", req.getParameter("reservation_start"));
@@ -150,11 +163,8 @@ public class ReservationController extends HttpServlet {
             return;
         }
 
-        System.out.println("2 /////////////////////////////////");
         if (id != null) reservation.setId(id);
         Long userId = (Long) req.getSession().getAttribute("id");
-        System.out.println("3 /////////////////////////////////");
-        System.out.println(userId);
 
         reservation.setReservation_date(new Date()); // Set current date as reservation date
         reservation.setPayment_status(false);
@@ -195,19 +205,11 @@ public class ReservationController extends HttpServlet {
             Date reservationStart = parseDate(paramToValue.get("start_date")[0], fieldToError, "start_date");
             Date reservationEnd = parseDate(paramToValue.get("end_date")[0], fieldToError, "end_date");
             long reservedVehicleId = parseLong(stripNonNumeric(paramToValue.get("vehicle_id")[0]), fieldToError, "vehicle_id");
-            int price = parseInt(stripNonNumeric(paramToValue.get("total_price")[0]));
+            BigDecimal price = parsePrice(stripNonNumeric(paramToValue.get("total_price")[0]));
             Long userId = (Long) req.getSession().getAttribute("id");
 
-            System.out.println("TEST /////////////////////////////////" + stripNonNumeric(paramToValue.get("total_price")[0]));
-            System.out.println("TEST2 /////////////////////////////////" + parseInt(stripNonNumeric(paramToValue.get("total_price")[0])));
-            System.out.println("11 ///////////////////////////////// " + reservationStart);
-            System.out.println("12 /////////////////////////////////" + reservationEnd);
-            System.out.println("13 /////////////////////////////////" + reservedVehicleId);
-            System.out.println("14 /////////////////////////////////" + price);
-            System.out.println("15 /////////////////////////////////" + userId);
-
             if (fieldToError.isEmpty()) {
-                return new Reservation(reservationStart, reservationEnd, new Date(), reservedVehicleId, userId, false, price);
+                return new Reservation(reservationStart, reservationEnd, new Date(), reservedVehicleId, userId, false, price, true);
             }
         } else {
             // Dodanie błędu, jeśli któryś z wymaganych parametrów jest nieobecny
@@ -249,11 +251,26 @@ public class ReservationController extends HttpServlet {
         }
     }
 
-    private int parseInt(String s) {
+    private int parseInt(String s, Map<String, String> fieldToError, String fieldName) {
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {
+            fieldToError.put(fieldName, "Invalid number format");
             return 0;
+        }
+    }
+
+    private BigDecimal parsePrice(String s) {
+        if (s == null || s.trim().isEmpty()) {
+            return null;
+        }
+        Locale locale = new Locale("pl", "PL");
+        DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+        format.setParseBigDecimal(true);
+        try {
+            return ((BigDecimal)format.parse(s)).setScale(2, RoundingMode.FLOOR);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 

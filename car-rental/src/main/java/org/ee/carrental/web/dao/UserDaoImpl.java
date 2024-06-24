@@ -37,6 +37,18 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    public User findById(Long id) {
+        TypedQuery<User> query = entityManager.createQuery(
+                "SELECT u FROM User u LEFT JOIN FETCH u.userGroups WHERE u.id = :id", User.class);
+        query.setParameter("id", id);
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException ex) {
+            logger.info("DAO findById NO RESULT EXCEPTION");
+            return null;
+        }
+    }
+
     @Override
     public User save(User user, UserGroup userGroup) {
         entityManager.persist(user);
