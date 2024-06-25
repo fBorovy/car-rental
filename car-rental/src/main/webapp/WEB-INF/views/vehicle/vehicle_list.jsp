@@ -129,6 +129,7 @@
         </table>
         <c:if test="${fn:contains(sessionScope.userGroups, 'ROLE_ADMIN')}">
             <div><button type="button" onclick="window.location.href = '<c:url value='/vehicle/edit' />';">Dodaj pojazd</button></div>
+            <div><button type="button" onclick="window.location.href = '<c:url value='/reservation/list' />';">Przeglądaj wszystkie rezerwacje</button></div>
         </c:if>
         <c:if test="${empty sessionScope.user}">
             <div><button type="button" onclick="window.location.href = '<c:url value='/security/login' />';">Zaloguj</button></div>
@@ -136,8 +137,9 @@
         </c:if>
         <div>
             <c:if test="${not empty sessionScope.user}">
+                <div><button type="button" onclick="window.location.href = '<c:url value='/reservation/list' />';">Moje rezerwacje</button></div>
                 <form action="${pageContext.request.contextPath}/security/logout" method="post">
-                    <button type="submit">Wyloguj</button>
+                    <div><button type="submit">Wyloguj</button></div>
                 </form>
             </c:if>
         </div>

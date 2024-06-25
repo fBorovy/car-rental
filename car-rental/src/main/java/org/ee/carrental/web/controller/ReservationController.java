@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jdk.jfr.Name;
 import org.ee.carrental.web.dao.*;
 import org.ee.carrental.web.model.Reservation;
@@ -25,7 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Name("ReservationDao")
-@WebServlet(name = "ReservationController", urlPatterns = {"/reservation/list", "/reservation/edit/*", "/reservation/form/*", "/reservation/remove/*", "/reservation/cancel/*"})
+@WebServlet(name = "ReservationController", urlPatterns = {"/reservation/list", "/reservation/edit/*", "/reservation/form/*", "/reservation/remove/*", "/reservation/cancel/*", "/reservation/payment/*"})
 public class ReservationController extends HttpServlet {
 
     @EJB
@@ -62,6 +63,12 @@ public class ReservationController extends HttpServlet {
             case "/reservation/form":
                 handleReservationForm(req, res);
                 break;
+            case "/reservation/cancel":
+                handleReservationCancelGet(req, res);
+                break;
+            case "/reservation/payment":
+                handleReservationPaymentGet(req, res);
+                break;
         }
     }
 
@@ -79,6 +86,108 @@ public class ReservationController extends HttpServlet {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 }
                 break;
+            case "/reservation/payment":
+                handleReservationPaymentPost(req, res);
+                break;
+            case "reservation/cancel":
+                handleReservationCancelPost(req, res);
+                break;
+        }
+    }
+
+    private void handleReservationCancelPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        String reservationIdStr = req.getParameter("id");
+        String password = req.getParameter("password");
+        if (password != null) {
+            Long reservationId = Long.parseLong(reservationIdStr);
+            Optional<Reservation> optReservation = reservationDao.findById(reservationId);
+            Reservation reservation = optReservation.get();
+
+            HttpSession session = req.getSession();
+            User currentUser = (User) session.getAttribute("user");
+
+            if (currentUser != null && currentUser.getPassword().equals(password)) {
+                reservation.setReservation_status(false);
+                reservationDao.saveOrUpdate(reservation);
+                try {
+                    Vehicle vehicle = getVehicleById(reservation.getReserved_vehicle_id());
+                    if (!req.getSession().getAttribute("username").equals("admin")) {
+                        new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),String.valueOf(reservation.getId()), "canceledReservation");
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                res.sendRedirect(req.getContextPath() + "/reservation/list");
+            } else {
+                req.setAttribute("error", "Nieprawidłowe hasło.");
+                req.setAttribute("reservation", reservation);
+                req.getRequestDispatcher("/WEB-INF/views/reservation/cancel.jsp").forward(req, res);
+            }
+        } else {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Nie wprowadzono hasła.");
+        }
+    }
+
+    private void handleReservationCancelGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        String reservationIdStr = req.getParameter("id");
+        Long reservationId = Long.parseLong(reservationIdStr);
+        Optional<Reservation> optReservation = reservationDao.findById(reservationId);
+        Reservation reservation = optReservation.get();
+        req.setAttribute("reservation", reservation);
+        req.getRequestDispatcher("/WEB-INF/views/reservation/cancel.jsp").forward(req, res);
+    }
+
+    private void handleReservationPaymentGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        String reservationId = req.getParameter("id");
+        Optional<Reservation> optReservation = reservationDao.findById(Long.parseLong(reservationId));
+        Reservation reservation = optReservation.get();
+        Vehicle vehicle = getVehicleById(reservation.getReserved_vehicle_id());
+        req.setAttribute("reservation", reservation);
+        req.getRequestDispatcher("/WEB-INF/views/reservation/payment.jsp").forward(req, res);
+    }
+
+    private void handleReservationPaymentPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException{
+        String reservationId = req.getParameter("id");
+        Optional<Reservation> optReservation = reservationDao.findById(Long.parseLong(reservationId));
+        if (optReservation.isPresent()) {
+            Reservation reservation = optReservation.get();
+            String cardNumber = req.getParameter("card_number");
+            String cardSurname = req.getParameter("card_surname");
+            String cardCVV = req.getParameter("card_cvv");
+
+            // Walidacja danych karty
+            if (!cardNumber.matches("\\d{26}")) {
+                req.setAttribute("error", "Numer karty musi zawierać 26 cyfr.");
+                req.setAttribute("reservation", reservation);
+                req.getRequestDispatcher("/WEB-INF/views/reservationPayment.jsp").forward(req, res);
+                return;
+            }
+            if (!cardSurname.matches("[a-zA-Z\\s]+")) {
+                req.setAttribute("error", "Nazwisko na karcie musi zawierać tylko litery.");
+                req.setAttribute("reservation", reservation);
+                req.getRequestDispatcher("/WEB-INF/views/reservationPayment.jsp").forward(req, res);
+                return;
+            }
+            if (!cardCVV.matches("\\d{3}")) {
+                req.setAttribute("error", "CVV musi zawierać 3 cyfry.");
+                req.setAttribute("reservation", reservation);
+                req.getRequestDispatcher("/WEB-INF/views/reservationPayment.jsp").forward(req, res);
+                return;
+            }
+            reservation.setPayment_status(true);
+            reservationDao.saveOrUpdate(reservation);
+            try {
+                Vehicle vehicle = getVehicleById(reservation.getReserved_vehicle_id());
+                if (!req.getSession().getAttribute("username").equals("admin")) {
+                    new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),String.valueOf(reservation.getId()), "confirmedPayment");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            res.sendRedirect(req.getContextPath() + "/reservation/list");
+        } else {
+            req.setAttribute("error", "Rezerwacja nie została znaleziona.");
+            req.getRequestDispatcher("/WEB-INF/views/reservation/payment.jsp").forward(req, res);
         }
     }
 
@@ -179,7 +288,9 @@ public class ReservationController extends HttpServlet {
         Vehicle vehicle = getVehicleById(reservation.getReserved_vehicle_id());
 
         try {
-            new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),String.valueOf(reservation.getId()), "confirmedReservation");
+            if (!req.getSession().getAttribute("username").equals("admin")) {
+                new GMailer().sendEmail((String) req.getSession().getAttribute("username"),vehicle.getBrand(),vehicle.getModel(),String.valueOf(reservation.getId()), "confirmedReservation");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

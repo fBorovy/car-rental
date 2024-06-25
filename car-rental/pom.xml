@@ -19,7 +19,8 @@
         <repository>
             <id>internal.repo</id>
             <name>InternalRepository</name>
-            <url>file:///D:/Studia/Semestr 6/Java/Projekt/wildfly-32.0.1.Final/standalone/deployments</url>
+            <url>file:///C:\Users\Filip\Documents\semestr6\java\wildfly-32.0.1.Final\wildfly-32.0.1.Final\standalone\deployments</url>
+            <!--<url>file:///D:/Studia/Semestr 6/Java/Projekt/wildfly-32.0.1.Final/standalone/deployments</url>-->
         </repository>
     </distributionManagement>
 
@@ -40,6 +41,7 @@
             <artifactId>h2</artifactId>
             <version>2.2.224</version>
         </dependency>
+        <!--dane o sesji-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
@@ -78,12 +80,6 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.7.1</version>
             <scope>test</scope>
-        </dependency>
-        <!--dane o sesji-->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
         </dependency>
     </dependencies>
     <build>

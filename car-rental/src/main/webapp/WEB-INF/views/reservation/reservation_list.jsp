@@ -84,10 +84,20 @@
                     </c:choose>
                 </td>
                 <td>${usernames[reservation.id]}</td> <!-- Dodana komórka -->
+                <td>
+                    <c:if test="${reservation.payment_status==false}">
+                        <button type="button" onclick="window.location.href = '<c:url value='/reservation/payment?id=${reservation.id}' />';">Opłać rezerwację</button>
+                    </c:if>
+                </td>
+                <td>
+                    <c:if test="${reservation.payment_status == false and reservation.reservation_status == true}">
+                        <button type="button" onclick="window.location.href = '<c:url value='/reservation/cancel?id=${reservation.id}' />';">Anuluj rezerwację</button>
+                    </c:if>
             </tr>
         </c:forEach>
         </tbody>
     </table>
+     <button type="button" onclick="window.location.href = '<c:url value='/vehicle/list' />';">Strona główna</button>
 </div>
 </body>
 </html>

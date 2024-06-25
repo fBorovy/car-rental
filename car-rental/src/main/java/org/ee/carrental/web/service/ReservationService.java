@@ -33,7 +33,7 @@ public class ReservationService {
             calendar.add(Calendar.MINUTE, 3);
             Date newReservationDate = calendar.getTime();
 
-            if (newReservationDate.before(new Date()) && reservation.getReservation_status()) {
+            if (newReservationDate.before(new Date()) && reservation.getReservation_status() && !reservation.getPayment_status()) {
                 performAction(reservation);
                 setStatus(reservation.getId(), false);
             }
